@@ -41,13 +41,21 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
 
         # ----------
         # Solution to Exercise 1
+        prior = [len(y[y == x]) / len(y) for x in classes]
 
-        raise NotImplementedError("Complete Exercise 1")
+        for i in range(n_classes):
+            docs_in_class = x[y.squeeze() == i]  # (800, 13989)
+            word_count = docs_in_class.sum(axis=0)  # (13989, )
+            total_word_count = word_count.sum()  # (1, )
+            if not self.smooth:
+                likelihood[:, i] = word_count / total_word_count
+            else:
+                likelihood[:, i] = (word_count + self.smooth_param) / (total_word_count + n_words * self.smooth_param)
 
         # End solution to Exercise 1
         # ----------
 
-        params = np.zeros((n_words+1, n_classes))
+        params = np.zeros((n_words + 1, n_classes))
         for i in range(n_classes):
             params[0, i] = np.log(prior[i])
             params[1:, i] = np.nan_to_num(np.log(likelihood[:, i]))
